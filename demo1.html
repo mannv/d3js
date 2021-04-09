@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+<div id="chart-area"></div>
+<script src="js/d3.v6.min.js"></script>
+<script type="text/javascript">
+    const width = 400
+    const data = [125, 246, 303, 100, 250]
+    const svg = d3.select('#chart-area').append('svg')
+    .attr('width', width)
+    .attr('height', 400)
+    .style('background-color', 'white')
+
+    const y = d3.scaleLinear()
+    .domain([0, d3.max(data) + 10])
+    .range([0, 400])
+
+    const x = d3.scaleLinear()
+    .domain([0, 1000])
+    .range([0, width])
+
+    const rects = svg.selectAll('rect').data(data);
+    rects.enter().append('rect')
+    .attr('x', (d, i) => {
+      if (i===0) {
+        return 0
+      }
+      return (i*x(55))
+    })
+    .attr('y', 0)
+    .attr('width', x(50))
+    .attr('height', d => {
+      const h = y(d)
+      console.log('y(d)', h, y.invert(h))
+      return h
+    })
+    .attr('fill', d => {
+      if (d % 2 === 0) {
+        return 'green'
+      }
+      return 'red'
+    })
+
+</script>
+</body>
+</html>
