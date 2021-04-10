@@ -8,7 +8,8 @@
 <div id="chart-area"></div>
 <script src="js/d3.v6.min.js"></script>
 <script type="text/javascript">
-    const data = [30, 45, 68, 35, 50]
+    const data = [30, 20, 10, 35, 50]
+    console.log('d3.extent(data)', d3.extent(data))
     const svg = d3.select('#chart-area').append('svg')
     .attr('width', 1000)
     .attr('height', 400)
@@ -26,6 +27,9 @@
     .attr('cy', 200)
     .attr('r', d => d)
     .attr('fill', 'red')
+
+
+    console.log(d3.schemeCategory10);
 
 </script>
 </body>

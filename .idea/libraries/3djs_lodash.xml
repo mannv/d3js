@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="3djs-lodash" type="javaScript">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/js/d3.v6.min.js" />
+      <root url="file://$PROJECT_DIR$/js/lodash.min.js" />
+    </CLASSES>
+    <SOURCES />
+  </library>
+</component>
