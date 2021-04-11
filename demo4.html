@@ -22,7 +22,7 @@
 <script src="js/lodash.min.js"></script>
 <script type="text/javascript">
 
-  const MARGIN = {LEFT: 60, TOP: 20, RIGHT: 10, BOTTOM: 80}
+  const MARGIN = {LEFT: 80, TOP: 20, RIGHT: 10, BOTTOM: 80}
   const WIDTH = 800 - MARGIN.LEFT - MARGIN.RIGHT;
   const HEIGHT = 400 - MARGIN.TOP - MARGIN.BOTTOM
 
@@ -63,12 +63,27 @@
   const y = d3.scaleLinear().domain([0, d3.max(yValues)]).range([HEIGHT, 0])
 
   const xAxisCall = d3.axisBottom(x).tickSizeOuter(0)
-  const yAxisCall = d3.axisLeft(y).ticks(5).tickFormat(d => `${d}m`)
+  const yAxisCall = d3.axisRight(y).ticks(5).tickFormat((d, i) => {
+    if (i === 0) {
+      return ''
+    }
+    return `${d}m`
+  })
     // .tickValues([50, 200, 300])
-    .tickSizeInner(0).tickSizeOuter(0)
+    // .tickSizeInner(0).tickSizeOuter(0)
+    .tickSize(WIDTH)
 
   g.append('g').attr('class', 'left-axis')
     .call(yAxisCall)
+    .call(g => g.select(".domain")
+      .remove())
+    .call(g => g.selectAll(".tick:not(:first-of-type) line")
+      .attr("stroke-opacity", 0.5)
+      .attr("stroke-dasharray", "5"))
+    .call(g => g.selectAll(".tick text")
+      .attr("x", -30)
+      .attr("dy", 3))
+
 
   g.append('g').attr('class', 'buttom-axis')
     .attr('transform', `translate(0, ${HEIGHT})`)
@@ -83,7 +98,7 @@
   g.append('text')
     .attr('class', 'y axis-label')
     .attr('x', -(HEIGHT / 2))
-    .attr('y', -40)
+    .attr('y', -60)
     .attr('font-size', '20px')
     .attr('text-anchor', 'middle')
     .attr('transform', 'rotate(-90)')
