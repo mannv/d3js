@@ -9,19 +9,6 @@
             padding: 0;
         }
 
-        div.tooltip {
-            position: absolute;
-            text-align: center;
-            width: 60px;
-            height: 28px;
-            padding: 2px;
-            font: 12px sans-serif;
-            background: lightsteelblue;
-            border: 0px;
-            border-radius: 8px;
-            pointer-events: none;
-        }
-
         #chart-area {
             width: 1000px;
             overflow-x: auto;
@@ -36,15 +23,10 @@
 <script type="text/javascript">
 
   const MARGIN = {LEFT: 60, TOP: 20, RIGHT: 10, BOTTOM: 80}
-  const WIDTH = 600 - MARGIN.LEFT - MARGIN.RIGHT;
+  const WIDTH = 800 - MARGIN.LEFT - MARGIN.RIGHT;
   const HEIGHT = 400 - MARGIN.TOP - MARGIN.BOTTOM
 
   const t = d3.transition().duration(750)
-  // Define the div for the tooltip
-  const tooltip = d3.select("body").append("div")
-    .attr("class", "tooltip")
-    .style("opacity", 0);
-
   const svg = d3.select('#chart-area').append('svg')
     .attr('width', WIDTH + MARGIN.LEFT + MARGIN.RIGHT)
     .attr('height', HEIGHT + MARGIN.TOP + MARGIN.BOTTOM)
@@ -52,28 +34,33 @@
 
   const g = svg.append('g').attr('transform', `translate(${MARGIN.LEFT}, ${MARGIN.TOP})`)
 
-
   const data = []
-  for (let i = 1; i <= 12; i++) {
-    data.push({month: `tháng ${i}`, data: _.random(0, 350)},)
+  let yValues = []
+  for (let i = 1; i <= 6; i++) {
+    const row = {
+      month: `tháng ${i}`, data: {
+        mobile: _.random(0, 350),
+        pc: _.random(0, 350),
+        tablet: _.random(0, 350),
+      }
+    }
+    yValues = _.concat(yValues, _.values(row.data))
+    data.push(row)
   }
-  console.log('data', data)
 
 
-  const rects = g.selectAll('rect').data(data);
-
+  // console.log('data', data)
+  // console.log('data', yValues)
+  console.log('extent: ', d3.extent(yValues))
+  const colGroup = g.selectAll('g').data(data);
 
   const months = _.map(data, 'month');
-  // const colorRange = d3.schemeCategory10
-  const colorRange = ['#206a5d', '#81b214', '#ffcc29', '#f58634']
-  const colors = d3.scaleOrdinal().domain(months).range(colorRange);
   const x = d3.scaleBand().domain(months)
     .range([0, WIDTH])
     .paddingInner(0.1)
     .paddingOuter(0.1);
 
-  const y = d3.scaleLinear().domain([0, d3.max(_.map(data, 'data'))]).range([HEIGHT, 0])
-
+  const y = d3.scaleLinear().domain([0, d3.max(yValues)]).range([HEIGHT, 0])
 
   const xAxisCall = d3.axisBottom(x).tickSizeOuter(0)
   const yAxisCall = d3.axisLeft(y).ticks(5).tickFormat(d => `${d}m`)
@@ -111,30 +98,44 @@
     .text('DEMO CHART DATA')
 
 
-  rects.enter().append('rect')
-    .attr('x', d => x(d.month))
-    .attr('width', x.bandwidth())
+  const subCol = ['mobile', 'pc', 'tablet']
+  // const colorRange = d3.schemeCategory10
+  const colorRange = ['#206a5d', '#81b214', '#ffcc29', '#f58634']
+  const colors = d3.scaleOrdinal().domain(subCol).range(colorRange);
+
+  const colScale = d3.scaleBand().domain(subCol)
+    .range([0, x.bandwidth()])
+  console.log('colWidth: ', x.bandwidth())
+
+  console.log('colGroup', colGroup)
+  colGroup.enter().append('g')
+    .attr('transform', d => {
+      return `translate(${x(d.month)}, 0)`
+    })
+    .selectAll('rect')
+    .data(d => {
+      return [d.data.mobile, d.data.pc, d.data.tablet]
+    })
+    .join('rect')
+    .attr('x', (d, i) => colScale(subCol[i]))
+    .attr('width', d => colScale.bandwidth())
     .attr('y', HEIGHT)
     .attr('height', 0)
-    .attr('fill', d => colors(d.month))
-    .on('mouseover', (event, d) => {
-      console.log('d3.event', event)
-      tooltip.transition()
-        .duration(200)
-        .style("opacity", .9);
-      tooltip.html(`Value: <strong>${d.data}</strong>`)
-        .style("left", (event.pageX) + "px")
-        .style("top", (event.pageY - 28) + "px");
-    })
-    .on("mouseout", function (d) {
-      tooltip.transition()
-        .duration(500)
-        .style("opacity", 0);
-    })
-    // .on('mouseout', tip.hide)
+    .attr('fill', (d, i) => colors(i))
     .transition(t)
-    .attr('y', d => y(d.data))
-    .attr('height', d => HEIGHT - y(d.data))
+    .attr('y', d => y(d))
+    .attr('height', d => HEIGHT - y(d))
+
+
+  // rects.enter().append('rect')
+  //   .attr('x', d => x(d.month))
+  //   .attr('width', x.bandwidth())
+  //   .attr('y', HEIGHT)
+  //   .attr('height', 0)
+  //   .attr('fill', d => colors(d.month))
+  //   .transition(t)
+  //   .attr('y', d => y(d.data))
+  //   .attr('height', d => HEIGHT - y(d.data))
 
 
 </script>
