@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        #chart-area {
+            width: 1000px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+<div id="chart-area"></div>
+<script src="js/d3.v6.min.js"></script>
+<script src="js/d3-tip.js"></script>
+<script src="js/lodash.min.js"></script>
+<script type="text/javascript">
+
+  const WIDTH = 200
+
+  const t = d3.transition().duration(750)
+  const svg = d3.select('#chart-area').append('svg')
+      .attr('width', WIDTH)
+      .attr('height', WIDTH)
+  // .style('background-color', '#e8e8e8')
+
+  const dataset = {
+    apple: _.random(10, 100),
+    samsung: _.random(10, 100),
+    htc: _.random(10, 100),
+    nokia: _.random(10, 100)
+  }
+  const total = _.sum(_.values(dataset))
+
+  const color = d3.scaleOrdinal()
+      .domain(_.keys(dataset))
+      .range(['#4e7fba', '#c0504d', '#9aba59', '#8064a2'])
+
+  const g = svg.append('g')
+      .attr('transform', `translate(${WIDTH / 2}, ${WIDTH / 2})`)
+
+  const pie = d3.pie()
+      .value((d) => d[1])
+
+  const arc = d3.arc()
+      .innerRadius(0)
+      .outerRadius(WIDTH / 2)
+
+  const part = g.selectAll('.part')
+      .data(pie(Object.entries(dataset)))
+      .enter()
+      .append('g')
+
+  part.append('path')
+      .attr('d', arc)
+      .attr('fill', (d, i) => color(i))
+
+
+  const groupInfo = part.append('g').attr("transform", function (d) {
+    return "translate(" + arc.centroid(d) + ")"
+  })
+
+  const wRect = 50;
+  const hRect = 25;
+
+  groupInfo.append('rect')
+      .attr('x', wRect / 2 * -1)
+      .attr('y', -18)
+      .attr('width', wRect)
+      .attr('height', hRect)
+      .attr('fill', '#4d4d4d')
+
+  const percentFormat = d3.format(".1f");
+  groupInfo.append('text')
+      .attr('x', 0)
+      .attr('y', 0)
+      .attr('fill', 'white')
+      .attr('font-weight', 'bold')
+      .attr('font-size', '1rem')
+      .attr('text-anchor', 'middle')
+      .text((d) => {
+        const percent = d.value / total * 100
+        return percentFormat(percent) + '%'
+      })
+
+
+  // part.append("text")
+  //     .attr("transform", function (d) {
+  //       return "translate(" + arc.centroid(d) + ")"
+  //     })
+  //     .text((d) => {
+  //       return `${d.data[0]}%`
+  //     })
+  //     .attr('fill', 'white')
+  //     .attr('font-weight', 'bold')
+  //     .attr('text-anchor', 'middle')
+
+
+</script>
+</body>
+</html>
